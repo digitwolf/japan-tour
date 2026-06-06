@@ -1,0 +1,4 @@
+// overlay.jsonl — hand-curated POI attribute overrides, one JSON object per line, keyed by "id".
+// Always wins over extracted values. Add precise coords (set "lat"/"lng"), interest_tags,
+// open_days/closed_days, reservation, cost_jpy, dwell_min, kid_friendly, fit corrections, etc.
+// Example: {"id":"himeji-himeji-castle-koko-en","dwell_min":120,"kid_friendly":true}

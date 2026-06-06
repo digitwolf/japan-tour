@@ -705,6 +705,18 @@ GEO = {
  "Kyoto Station":"34.98556,135.75861",
 }
 
+# --- Single source of truth for coordinates + wiki: poidb/coords.json ---
+# The inline COORDS/GEO/WIKI above are the fallback/authoring default; when the
+# POI database's coords file exists it OVERRIDES them, so refinements made by
+# poidb/geocode.py (precise per-POI lat/lng) flow straight into data.js. The file
+# is generated from these same dicts, so a clean checkout regenerates identically.
+_COORDS_JSON = os.path.join(os.path.dirname(__file__), "poidb", "coords.json")
+if os.path.exists(_COORDS_JSON):
+    _cj = json.load(open(_COORDS_JSON, encoding="utf-8"))
+    COORDS = {k: tuple(v) for k, v in _cj.get("dest_coords", {}).items()} or COORDS
+    GEO = _cj.get("geo") or GEO
+    WIKI = _cj.get("wiki") or WIKI
+
 # ============ DAYART (region-matched ukiyo-e, keyed by day.d) ============
 A = {
  "nihonbashi":"https://upload.wikimedia.org/wikipedia/commons/b/b8/Brooklyn_Museum_-_Nihonbashi_-_Utagawa_Hiroshige_%28Ando%29_-_overall.jpg",
@@ -811,19 +823,19 @@ out.append("window.GEO = " + js(GEO, 0) + ";\n")
 out.append("/* Region-matched public-domain ukiyo-e prints used as each day's hero artwork. */")
 out.append("window.DAYART = " + js(DAYART, 0) + ";")
 
-open(os.path.join(os.path.dirname(__file__), "data.js"), "w", encoding="utf-8").write("\n".join(out) + "\n")
-print("wrote data.js")
-print("DESTINATIONS:", len(ORDER), "DAYS:", len(DAYS))
-print("ids:", ", ".join(ORDER))
-# image url inventory
-import collections
-urls = set()
-for i in ORDER:
-    for ph in DESTS[i]["photos"]:
-        urls.add(ph["src"])
-for d in DAYS:
-    for p in d["poi"]:
-        if p.get("img"): urls.add(p["img"])
-for v in DAYART.values(): urls.add(v)
-urls.add(FLIGHTS and "")
-print("unique image urls:", len([u for u in urls if u]))
+if __name__ == "__main__":
+    open(os.path.join(os.path.dirname(__file__), "data.js"), "w", encoding="utf-8").write("\n".join(out) + "\n")
+    print("wrote data.js")
+    print("DESTINATIONS:", len(ORDER), "DAYS:", len(DAYS))
+    print("ids:", ", ".join(ORDER))
+    # image url inventory
+    urls = set()
+    for i in ORDER:
+        for ph in DESTS[i]["photos"]:
+            urls.add(ph["src"])
+    for d in DAYS:
+        for p in d["poi"]:
+            if p.get("img"): urls.add(p["img"])
+    for v in DAYART.values(): urls.add(v)
+    urls.add(FLIGHTS and "")
+    print("unique image urls:", len([u for u in urls if u]))

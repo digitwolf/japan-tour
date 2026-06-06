@@ -33,6 +33,17 @@ research/
 - **Start/end location & bikes come from `motorcycle-rental.md`.** Key fact: the chosen operator (bikerentaljapan.com) is based in **Suita, Osaka with no Tokyo pickup**, so the tour is **Osaka-anchored** — plan it as an Osaka loop (or a fee-based delivery-assisted one-way), not an off-the-shelf Tokyo→Osaka one-way. Also honor the legal pillion rule (licence held ≥1 yr ordinary roads / ≥3 yr expressways) — flag it wherever the newer rider carries the child.
 - If you learn something new and durable from `WebSearch`/`WebFetch`, add it to the right `research/` file (with source URLs) so the library stays the source of touring knowledge.
 
+## POI database — query it before planning a stop or reroute
+A geo-aware, queryable index of every POI on/near the trip lives in **`poidb/`** (built from the itinerary + `interests/` + a curation overlay; see [`poidb/README.md`](../../poidb/README.md) and [`docs/POI-DATABASE.md`](../../docs/POI-DATABASE.md)). It stores GPS coords, **interest tags** (mapped to `00-family.md`), kid flag, open/closed days, reservation, cost, and a `fit` tag — so you can *filter* instead of re-reading prose. Use it to answer "what's near here, open then, kid-ok, and does this family love it?", then apply judgement.
+```bash
+python3 poidb/query.py --tags onsen --near-day 13 --radius 50 --open Mon --kid   # geo + attribute filters
+python3 poidb/query.py --near-dest dogo --radius 25 --score --limit 8            # rank by family-fit
+python3 poidb/query.py --text "hands-on craft for a child"                       # lexical search
+python3 poidb/query.py --tags motorcycles --fit off-route,bookend               # know what exists & where
+```
+- After changing trip facts in `tour/`/`interests/`, rebuild + check: `python3 poidb/build_store.py && python3 poidb/validate.py` (must be 0 errors). The store is a derived index — never hand-edit `poidb/pois.jsonl`; add structured attributes/coords via `poidb/overlay.jsonl`.
+- **Coordinates + wiki are canonical in `poidb/coords.json`** (consumed by both `gen_data.py` and the store). Refine coarse `dest-approx` coords with `python3 poidb/geocode.py` when a Maps key + network are available.
+
 ## The traveller profile (always design to this)
 **Read `00-family.md` before any substantive change** — it holds the full profiles and a "what we like" planning checklist. In brief:
 - **Ruslan (37, Rider 1)** — seasoned rider (BMW R 1300 GS; Morocco ADV trip), big ADV bike carrying 6-year-old **Aslan**. Can ride long/technical — *not* the limiting rider; serve him with riding quality (scenic, flowing roads).

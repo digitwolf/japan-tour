@@ -2,3 +2,7 @@
 .DS_Store
 gmaps-key.js
 google_maps.key
+
+# Python build/import caches
+__pycache__/
+*.pyc
